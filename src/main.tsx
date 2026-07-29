@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./pages.css";
 
@@ -14,6 +14,15 @@ const august115Rows: Tenant[] = [
 
 const fmt=(n:number)=>new Intl.NumberFormat("zh-TW",{maximumFractionDigits:0}).format(n);
 
+const loadSavedRows=(key:string,fallback:Tenant[])=>{
+  try {
+    const saved=window.localStorage.getItem(key);
+    return saved ? JSON.parse(saved) as Tenant[] : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 function UsageTable({rows,setRows,heading,description,showContacts=false,sourceRows}:{rows:Tenant[];setRows:React.Dispatch<React.SetStateAction<Tenant[]>>;heading:string;description:string;showContacts?:boolean;sourceRows?:Tenant[]}) {
   const update=(i:number,k:keyof Tenant,v:string)=>setRows(items=>items.map((row,n)=>n===i?{...row,[k]:k==="room"?v:Number(v)||0}:row));
   const displayRows=sourceRows?rows.map(row=>({...row,previous:sourceRows.find(source=>source.room===row.room)?.current??row.previous})):rows;
@@ -21,10 +30,12 @@ function UsageTable({rows,setRows,heading,description,showContacts=false,sourceR
 }
 
 function App() {
-  const [tenants,setTenants]=useState(receiptRows);
-  const [august115,setAugust115]=useState(august115Rows);
+  const [tenants,setTenants]=useState<Tenant[]>(()=>loadSavedRows("rental-electricity-current",receiptRows));
+  const [august115,setAugust115]=useState<Tenant[]>(()=>loadSavedRows("rental-electricity-next",august115Rows));
   const [room,setRoom]=useState("305");
   const [tab,setTab]=useState<"receipt"|"ledger"|"august115">("receipt");
+  useEffect(()=>{window.localStorage.setItem("rental-electricity-current",JSON.stringify(tenants));},[tenants]);
+  useEffect(()=>{window.localStorage.setItem("rental-electricity-next",JSON.stringify(august115));},[august115]);
   const tenant=useMemo(()=>tenants.find(t=>t.room.toUpperCase()===room.trim().toUpperCase()),[room,tenants]);
   const usage=tenant?tenant.current-tenant.previous:0;
   const fee=tenant?Math.floor(usage*tenant.rate):0;
