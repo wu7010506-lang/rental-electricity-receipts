@@ -22,8 +22,9 @@ export default function Home() {
   const [tab, setTab] = useState<"receipt" | "ledger">("receipt");
   const tenant = useMemo(() => tenants.find((item) => item.room.toUpperCase() === room.trim().toUpperCase()), [room, tenants]);
   const usage = tenant ? tenant.current - tenant.previous : 0;
-  const electricity = tenant ? usage * tenant.rate : 0;
-  const total = tenant ? tenant.rent + electricity : 0;
+  // 電費與合計依帳務規則一律無條件捨去至整數元。
+  const electricity = tenant ? Math.floor(usage * tenant.rate) : 0;
+  const total = tenant ? Math.floor(tenant.rent + electricity) : 0;
 
   const update = (index: number, key: keyof Tenant, value: string) => setTenants((items) => items.map((item, i) => i === index ? { ...item, [key]: key === "room" ? value : Number(value) || 0 } : item));
 
@@ -56,8 +57,8 @@ export default function Home() {
             <button className="print" onClick={() => window.print()}>列印此收據</button>
           </article>
         </section>
-      ) : <section className="ledger card"><div className="ledger-header"><div><p className="section-label">02 ／ 輸入讀數</p><h2>本月用電資料</h2><p>直接更新各房的本月電表讀數；下方電費與應收金額會自動計算。</p></div><div className="legend"><i /> 可編輯欄位</div></div><div className="table-wrap"><table><thead><tr><th>房號</th><th>月租金</th><th>本月用電</th><th>上月用電</th><th>用電量</th><th>單價</th><th>電費</th><th>合計</th></tr></thead><tbody>{tenants.map((item, index) => { const used = item.current - item.previous; const fee = used * item.rate; return <tr key={item.room}><td><input value={item.room} onChange={(e) => update(index, "room", e.target.value)} /></td><td><input type="number" value={item.rent} onChange={(e) => update(index, "rent", e.target.value)} /></td><td><input type="number" className="editable" value={item.current} onChange={(e) => update(index, "current", e.target.value)} /></td><td><input type="number" value={item.previous} onChange={(e) => update(index, "previous", e.target.value)} /></td><td>{money(used)}</td><td><input type="number" step="0.1" value={item.rate} onChange={(e) => update(index, "rate", e.target.value)} /></td><td>{money(fee)}</td><td><b>{money(item.rent + fee)}</b></td></tr> })}</tbody></table></div></section>}
-      <footer>電費以「本月用電 − 上月用電」計算；可在資料頁調整單價、租金與讀數。</footer>
+      ) : <section className="ledger card"><div className="ledger-header"><div><p className="section-label">02 ／ 輸入讀數</p><h2>本月用電資料</h2><p>直接更新各房的本月電表讀數；下方電費與應收金額會自動計算。</p></div><div className="legend"><i /> 可編輯欄位</div></div><div className="table-wrap"><table><thead><tr><th>房號</th><th>月租金</th><th>本月用電</th><th>上月用電</th><th>用電量</th><th>單價</th><th>電費</th><th>合計</th></tr></thead><tbody>{tenants.map((item, index) => { const used = item.current - item.previous; const fee = Math.floor(used * item.rate); const total = Math.floor(item.rent + fee); return <tr key={item.room}><td><input value={item.room} onChange={(e) => update(index, "room", e.target.value)} /></td><td><input type="number" value={item.rent} onChange={(e) => update(index, "rent", e.target.value)} /></td><td><input type="number" className="editable" value={item.current} onChange={(e) => update(index, "current", e.target.value)} /></td><td><input type="number" value={item.previous} onChange={(e) => update(index, "previous", e.target.value)} /></td><td>{money(used)}</td><td><input type="number" step="0.1" value={item.rate} onChange={(e) => update(index, "rate", e.target.value)} /></td><td>{money(fee)}</td><td><b>{money(total)}</b></td></tr> })}</tbody></table></div></section>}
+      <footer>電費以「本月用電 − 上月用電」計算；電費與合計無條件捨去至整數元。</footer>
     </main>
   );
 }
