@@ -51,7 +51,7 @@ export default function Home() {
             {tenant && <div className="mini-summary"><span>本月用電</span><b>{money(tenant.current)} 度</b><span>單價</span><b>{tenant.rate} 元／度</b></div>}
           </div>
           <article className="receipt card" aria-live="polite">
-            <div className="receipt-head"><div><p>7 月房租</p><h2>租金繳款收據</h2></div><strong>{tenant?.room || "—"}</strong></div>
+            <div className="receipt-head"><div><p>7 月房租</p><h2>租金繳款單</h2></div><strong>{tenant?.room || "—"}</strong></div>
             <div className="owner"><span>房東</span><b>姜 義 彬</b><span>帳戶</span><b>華南銀行 南永和分行</b><span>帳號</span><b>169-20-0147047</b><span>戶名</span><b>吳金泉</b><span>聯絡電話</span><b>0955902392（LINE ID: may0955902392）</b></div>
             {tenant ? <><div className="line"><span>月租金</span><b>NT$ {money(tenant.rent)}</b></div><div className="line"><span>用電度數</span><b>{money(tenant.current)} − {money(tenant.previous)} ＝ {money(usage)} 度</b></div><div className="line"><span>電費</span><b>NT$ {money(electricity)}</b></div><div className="total"><span>合計</span><b>NT$ {money(total)}</b></div></> : <p className="not-found">找不到此房號，請從本月用電資料確認。</p>}
             <button className="print" onClick={() => window.print()}>列印此收據</button>
