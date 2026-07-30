@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>房租與電費收據</title>
+    <style>
+      @page { size: A4 landscape; margin: 8mm; }
+      @media print {
+        .ledger { border: 0 !important; box-shadow: none !important; padding: 0 !important; }
+        .ledger .scroll { overflow: visible !important; }
+        .ledger table { width: 100% !important; min-width: 0 !important; table-layout: fixed; font-size: 8px !important; }
+        .ledger th, .ledger td { padding: 3px 2px !important; }
+        .ledger td input { min-width: 0 !important; padding: 1px !important; font-size: 8px !important; }
+      }
+    </style>
   </head>
   <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
 </html>
